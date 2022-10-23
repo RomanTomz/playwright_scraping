@@ -1,6 +1,4 @@
 from playwright.sync_api import sync_playwright
-from parsel import Selector
-from urllib.parse import urljoin
 
 import pandas as pd
 
@@ -23,24 +21,31 @@ with sync_playwright() as p:
     parsed = []
     df_list = []
     while next_page:
-        reviews = page.locator("//div[@class='styles_cardWrapper__LcCPA styles_show__HUXRb styles_reviewCard__9HxJJ']")
-        for review in reviews.element_handles():
-            parsed.append({
-                'header':review.query_selector('h2').inner_text(),
-                'text':review.query_selector('p').inner_text(),
-                'date_of_experience':review.query_selector("time").inner_text(),
-                'rating':review.query_selector('img').get_attribute('alt')
+        try:
+            reviews = page.locator("//div[@class='styles_cardWrapper__LcCPA styles_show__HUXRb styles_reviewCard__9HxJJ']")
+            for review in reviews.element_handles():
+                parsed.append({
+                    'header':review.query_selector('h2').inner_text(),
+                    'text':review.query_selector('p').inner_text(),
+                    'date_of_experience':review.query_selector("time").inner_text(),
+                    'rating':review.query_selector('img').get_attribute('alt')
 
-                })
-        if next_page:
-            page.locator("//div[@class='styles_pagination__6VmQv']//a[@aria-label='Next page']/span").click()
-        else:
-            pass
-            
-        for comment in parsed:
-            print(comment)
-df = pd.DataFrame(parsed)
-print(df)
+                    })
+            # if next_page:
+                page.locator("//div[@class='styles_pagination__6VmQv']//a[@aria-label='Next page']/span").click()
+            # else:
+            #     break
+            # print(df_list)
+        except:
+            df_list.append(parsed)
+            pd.DataFrame(df_list).to_csv('test.csv')
+            break
+            # df = pd.DataFrame(parsed)
+            # print(df)
+#         for comment in parsed:
+#             print(comment)
+# # df = pd.DataFrame(parsed)
+# print(df)
     # # print(parsed)
     
     #     df_list.append(parsed)
