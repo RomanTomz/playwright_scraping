@@ -1,4 +1,4 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeOut
 from parsel import Selector
 
 from time import sleep
@@ -31,10 +31,12 @@ with sync_playwright() as p:
 
 
     for i in range(1, pages+1):
-            # if  page_reload:
-            page.locator("//div[@class='UI__loadMoreResults']").click()
-            sleep(1.5)
-            page.mouse.wheel(0,100)
+            try:
+                page.locator("//div[@class='UI__loadMoreResults']").click()
+                sleep(2)
+                page.mouse.wheel(0,100)
+            except PlaywrightTimeOut:
+                continue
 
     parsed = []
     page_html = page.content()
